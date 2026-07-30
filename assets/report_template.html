@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{PROJECT_NAME}} · 商业分析报告</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --ink: #000;
+            --ink-80: #1a1a1a;
+            --ink-60: #333;
+            --ink-40: #666;
+            --ink-25: #999;
+            --ink-12: #ccc;
+            --ink-06: #e8e8e8;
+            --ink-03: #f5f5f5;
+            --ink-00: #fff;
+            --line: 1px solid var(--ink);
+            --line-light: 1px solid var(--ink-12);
+            --line-hair: 1px solid var(--ink-06);
+            --gutter: 48px;
+            --max-w: 860px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+            background: var(--ink-00);
+            color: var(--ink);
+            line-height: 1.75;
+            font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ===== COVER ===== */
+        .cover {
+            min-height: 100vh;
+            background: var(--ink);
+            color: var(--ink-00);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 40px;
+            text-align: center;
+        }
+        .cover-label {
+            font-size: 11px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            opacity: 0.5;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 6px 24px;
+        }
+        .cover h1 {
+            font-size: 52px;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+        .cover-desc {
+            font-size: 18px;
+            opacity: 0.55;
+            margin-bottom: 64px;
+            max-width: 480px;
+        }
+        .cover-verdict {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 36px;
+            border: 2px solid var(--ink-00);
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 6px;
+            margin-bottom: 20px;
+        }
+        .cover-verdict-dot {
+            width: 12px; height: 12px;
+            display: inline-block;
+        }
+        .cover-verdict-dot.go { background: var(--ink-00); }
+        .cover-verdict-dot.caution { background: var(--ink-00); outline: 2px solid var(--ink-00); outline-offset: -4px; background: transparent; }
+        .cover-verdict-dot.nogo { background: var(--ink-00); clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
+        .cover-reason {
+            font-size: 14px;
+            opacity: 0.45;
+            max-width: 400px;
+        }
+        .cover-meta {
+            display: flex;
+            gap: 48px;
+            margin-top: 64px;
+            opacity: 0.4;
+            font-size: 13px;
+        }
+        .cover-meta span { display: block; }
+        .cover-meta .meta-val { font-size: 20px; font-weight: 700; opacity: 0.8; }
+
+        /* ===== NAV ===== */
+        .nav {
+            position: sticky; top: 0; z-index: 100;
+            background: var(--ink);
+            display: flex;
+            gap: 6px;
+            padding: 8px 24px;
+            overflow-x: auto;
+            white-space: nowrap;
+            justify-content: center;
+        }
+        .nav a {
+            color: rgba(255,255,255,0.45);
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            padding: 6px 12px;
+            transition: color 0.2s;
+        }
+        .nav a:hover { color: var(--ink-00); }
+
+        /* ===== CONTAINER ===== */
+        .container { max-width: var(--max-w); margin: 0 auto; padding: 0 var(--gutter) 80px; }
+
+        /* ===== SECTIONS ===== */
+        section { padding-top: 64px; }
+        .sec-head {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            margin-bottom: 36px;
+            padding-bottom: 16px;
+            border-bottom: var(--line);
+        }
+        .sec-num {
+            font-size: 64px;
+            font-weight: 900;
+            line-height: 1;
+            color: var(--ink-06);
+            flex-shrink: 0;
+        }
+        .sec-title {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+        .sec-sub {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--ink-40);
+            margin: 32px 0 12px;
+        }
+
+        /* ===== TYPE ===== */
+        p { margin-bottom: 14px; color: var(--ink-60); }
+        p strong { color: var(--ink); }
+        ul, ol { margin-bottom: 14px; padding-left: 20px; color: var(--ink-60); }
+        li { margin-bottom: 6px; }
+        a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+
+        /* ===== TEXT SIZES ===== */
+        .t-lead {
+            font-size: 18px;
+            font-weight: 400;
+            color: var(--ink-80);
+            line-height: 1.8;
+            margin-bottom: 24px;
+        }
+        .t-sm { font-size: 12px; color: var(--ink-40); }
+
+        /* ===== TABLE ===== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-bottom: 24px;
+        }
+        th {
+            text-align: left;
+            padding: 10px 14px;
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--ink-40);
+            border-bottom: var(--line);
+        }
+        td {
+            padding: 10px 14px;
+            border-bottom: var(--line-hair);
+            color: var(--ink-60);
+        }
+        tr:last-child td { border-bottom: none; }
+        .t-num { font-family: 'SF Mono', 'Consolas', monospace; font-weight: 700; color: var(--ink); }
+
+        /* ===== BLOCK ===== */
+        .block {
+            border: var(--line-light);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .block-dark {
+            background: var(--ink);
+            color: var(--ink-00);
+            padding: 32px;
+            margin-bottom: 20px;
+        }
+        .block-dark p, .block-dark li { color: rgba(255,255,255,0.7); }
+        .block-dark .sec-sub { color: rgba(255,255,255,0.4); }
+
+        /* ===== FINDINGS LIST ===== */
+        .findings { list-style: none; padding: 0; }
+        .findings li {
+            padding: 12px 0;
+            border-bottom: var(--line-hair);
+            font-size: 14px;
+        }
+        .findings li:last-child { border-bottom: none; }
+        .findings .f-num {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            line-height: 22px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 800;
+            border: 1.5px solid var(--ink);
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        /* ===== METRIC ROW ===== */
+        .metric-row {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 20px;
+            background: var(--ink-12);
+        }
+        .metric-row > * {
+            flex: 1;
+            background: var(--ink-00);
+            text-align: center;
+            padding: 24px 16px;
+        }
+        .metric-val {
+            font-size: 32px;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .metric-label {
+            font-size: 11px;
+            color: var(--ink-40);
+            letter-spacing: 1px;
+        }
+
+        /* ===== SCORE INDICATOR ===== */
+        .score {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .score-bar {
+            width: 48px;
+            height: 4px;
+            background: var(--ink-06);
+        }
+        .score-bar-fill { height: 100%; background: var(--ink); }
+
+        /* ===== GAUGE ===== */
+        .gauge {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 28px 0;
+        }
+        .gauge-track {
+            flex: 1;
+            height: 6px;
+            background: var(--ink-06);
+            position: relative;
+        }
+        .gauge-fill {
+            position: absolute;
+            left: 0; top: 0;
+            height: 100%;
+            background: var(--ink);
+        }
+        .gauge-marker {
+            position: absolute;
+            top: -8px;
+            width: 2px;
+            height: 22px;
+            background: var(--ink);
+        }
+        .gauge-label { font-size: 11px; color: var(--ink-40); min-width: 60px; }
+        .gauge-val {
+            font-size: 36px;
+            font-weight: 900;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        /* ===== MOAT BAR ===== */
+        .moat-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 0;
+        }
+        .moat-item-label {
+            width: 90px;
+            font-size: 12px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .moat-item-bar-wrap {
+            flex: 1;
+            height: 14px;
+            background: var(--ink-03);
+            position: relative;
+        }
+        .moat-item-bar-self {
+            height: 100%;
+            background: var(--ink);
+            position: absolute;
+            left: 0; top: 0;
+            z-index: 1;
+        }
+        .moat-item-bar-comp {
+            height: 10px;
+            background: var(--ink-12);
+            position: absolute;
+            top: 2px;
+            border: 1px dashed var(--ink-40);
+        }
+        .moat-item-score {
+            width: 36px;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        /* ===== MATRIX ===== */
+        .matrix {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 1px;
+            background: var(--ink);
+            max-width: 380px;
+            margin: 0 auto 20px;
+        }
+        .matrix-cell {
+            background: var(--ink-00);
+            padding: 20px 16px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .matrix-cell.active {
+            background: var(--ink);
+            color: var(--ink-00);
+        }
+        .matrix-cell .axis {
+            font-size: 10px;
+            font-weight: 400;
+            color: var(--ink-40);
+            display: block;
+            margin-bottom: 4px;
+        }
+        .matrix-cell.active .axis { color: rgba(255,255,255,0.5); }
+
+        /* ===== WIND ===== */
+        .wind {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .wind-arrow { font-size: 18px; }
+        .wind-strong-up .wind-arrow { color: var(--ink); }
+        .wind-mild-up .wind-arrow { color: var(--ink-60); }
+        .wind-neutral .wind-arrow { color: var(--ink-25); }
+        .wind-mild-down .wind-arrow { color: var(--ink-40); }
+        .wind-strong-down .wind-arrow { color: var(--ink); font-weight: 900; }
+
+        /* ===== CALL TO ACTION ===== */
+        .cta {
+            border: 2px solid var(--ink);
+            padding: 28px 32px;
+            margin-bottom: 24px;
+        }
+        .cta-head {
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        /* ===== ROADMAP ===== */
+        .roadmap { position: relative; padding-left: 32px; }
+        .roadmap::before {
+            content: '';
+            position: absolute;
+            left: 5px; top: 0; bottom: 0;
+            width: 2px;
+            background: var(--ink-12);
+        }
+        .roadmap-item { position: relative; margin-bottom: 28px; }
+        .roadmap-item::before {
+            content: '';
+            position: absolute;
+            left: -31px; top: 4px;
+            width: 10px; height: 10px;
+            border: 2px solid var(--ink);
+            background: var(--ink-00);
+        }
+        .roadmap-time {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--ink-40);
+            margin-bottom: 4px;
+        }
+        .roadmap-title { font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+
+        /* ===== CONFIDENCE ===== */
+        .conf {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 1px 6px;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+        .conf-a { border: 1px solid var(--ink); color: var(--ink); }
+        .conf-b { border: 1px solid var(--ink-40); color: var(--ink-40); background: var(--ink-03); }
+        .conf-c { border: 1px solid var(--ink-12); color: var(--ink-25); }
+
+        /* ===== TAG ===== */
+        .tag {
+            display: inline-block;
+            padding: 2px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin: 2px;
+        }
+        .tag-line { border: 1px solid var(--ink); }
+        .tag-dot { border: 1px solid var(--ink-25); color: var(--ink-40); }
+
+        /* ===== SWOT COMPRESSED ===== */
+        .swot-compact {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--ink-12);
+        }
+        .swot-compact > div {
+            background: var(--ink-00);
+            padding: 20px;
+        }
+        .swot-compact .swot-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            color: var(--ink-40);
+        }
+        .swot-compact ul { margin-bottom: 0; font-size: 13px; padding-left: 16px; }
+
+        /* ===== CHARTS ===== */
+        .chart-box {
+            padding: 24px 0;
+            margin-bottom: 20px;
+        }
+        .chart-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-bottom: 20px;
+        }
+        .chart-wrap { position: relative; height: 300px; }
+        @media (max-width: 768px) {
+            .chart-row { grid-template-columns: 1fr; }
+            .metric-row { flex-wrap: wrap; }
+            .swot-compact { grid-template-columns: 1fr; }
+        }
+
+        /* ===== CODE ===== */
+        code {
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 13px;
+            background: var(--ink-03);
+            padding: 2px 6px;
+        }
+        pre {
+            background: var(--ink-03);
+            padding: 16px;
+            overflow-x: auto;
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+            border-left: 3px solid var(--ink-12);
+        }
+        pre code { background: none; padding: 0; }
+
+        /* ===== APPENDIX ===== */
+        .appendix-head {
+            border-top: 3px solid var(--ink);
+            border-bottom: var(--line-light);
+            padding: 20px 0;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+        }
+        .appendix-head .label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 3px;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            text-align: center;
+            padding: 40px;
+            font-size: 11px;
+            color: var(--ink-25);
+            border-top: var(--line-hair);
+        }
+
+        /* ===== PRINT ===== */
+        @media print {
+            .nav { display: none; }
+            .cover { min-height: auto; page-break-after: always; }
+            section { page-break-inside: avoid; }
+            body { font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== COVER ===== -->
+<div class="cover">
+    <div class="cover-label">Business Analysis Report</div>
+    <h1>{{PROJECT_NAME}}</h1>
+    <p class="cover-desc">{{PROJECT_DESCRIPTION}}</p>
+
+    <div class="cover-verdict">
+        <span class="cover-verdict-dot {{COVER_DECISION_CLASS}}"></span>
+        {{DECISION_VERDICT}}
+    </div>
+    <p class="cover-reason">{{DECISION_ONELINER}}</p>
+
+    <div class="cover-meta">
+        <div><span class="meta-val">{{REPORT_DATE}}</span><span>报告日期</span></div>
+        <div><span class="meta-val">{{TECH_STACK}}</span><span>技术栈</span></div>
+        <div><span class="meta-val">{{CODE_SIZE}}</span><span>代码规模</span></div>
+        <div><span class="meta-val">{{OVERALL_SCORE}}/10</span><span>综合评分</span></div>
+    </div>
+</div>
+
+<!-- ===== NAV ===== -->
+<div class="nav">
+    <a href="#s1">执行摘要</a>
+    <a href="#s2">项目概览</a>
+    <a href="#s3">代码质量</a>
+    <a href="#s4">市场与赛道</a>
+    <a href="#s5">竞品与护城河</a>
+    <a href="#s6">商业价值</a>
+    <a href="#s7">投资决策</a>
+    <a href="#s8">未来方向</a>
+    <a href="#appendix">数据溯源</a>
+</div>
+
+<!-- ===== CONTENT ===== -->
+<div class="container">
+
+    <!-- 1. 执行摘要 -->
+    <section id="s1">
+        <div class="sec-head">
+            <span class="sec-num">01</span>
+            <span class="sec-title">执行摘要</span>
+        </div>
+
+        <p class="t-lead">{{EXECUTIVE_SUMMARY_TEXT}}</p>
+
+        <div class="sec-sub">核心发现</div>
+        <ul class="findings">
+            <li><span class="f-num">1</span>{{KEY_FINDING_1}}</li>
+            <li><span class="f-num">2</span>{{KEY_FINDING_2}}</li>
+            <li><span class="f-num">3</span>{{KEY_FINDING_3}}</li>
+            <li><span class="f-num">4</span>{{KEY_FINDING_4}}</li>
+            <li><span class="f-num">5</span>{{KEY_FINDING_5}}</li>
+        </ul>
+    </section>
+
+    <!-- 2. 项目概览 -->
+    <section id="s2">
+        <div class="sec-head">
+            <span class="sec-num">02</span>
+            <span class="sec-title">项目概览</span>
+        </div>
+
+        <table>
+            <tr><th style="width:25%">项目名称</th><td>{{PROJECT_NAME}}</td></tr>
+            <tr><th>版本</th><td>{{PROJECT_VERSION}}</td></tr>
+            <tr><th>编程语言</th><td>{{LANGUAGES}}</td></tr>
+            <tr><th>技术栈</th><td>{{FRAMEWORKS}}</td></tr>
+            <tr><th>代码行数</th><td>{{LOC}}</td></tr>
+            <tr><th>文件数量</th><td>{{FILE_COUNT}}</td></tr>
+            <tr><th>开源协议</th><td>{{LICENSE}}</td></tr>
+        </table>
+
+        <div class="sec-sub">核心功能</div>
+        <p>{{FEATURES_OVERVIEW}}</p>
+        <div>
+            <span class="tag tag-line">{{FEATURE_TAG_1}}</span>
+            <span class="tag tag-line">{{FEATURE_TAG_2}}</span>
+            <span class="tag tag-dot">{{FEATURE_TAG_3}}</span>
+        </div>
+
+        <div class="sec-sub">关键指标</div>
+        <div class="metric-row">
+            <div>
+                <div class="metric-val">{{CODE_QUALITY_SCORE}}</div>
+                <div class="metric-label">代码质量 /10</div>
+            </div>
+            <div>
+                <div class="metric-val">{{TRACK_SCORE}}</div>
+                <div class="metric-label">赛道位置 /10</div>
+            </div>
+            <div>
+                <div class="metric-val">{{DIFFERENTIATION_SCORE}}</div>
+                <div class="metric-label">差异化程度 /10</div>
+            </div>
+            <div>
+                <div class="metric-val">{{BUSINESS_SCORE}}</div>
+                <div class="metric-label">商业潜力 /10</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. 代码质量 -->
+    <section id="s3">
+        <div class="sec-head">
+            <span class="sec-num">03</span>
+            <span class="sec-title">代码质量</span>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="radarChart" role="img" aria-label="代码质量六维雷达图：架构设计、代码规范、安全性、性能、可维护性、技术债务"></canvas>
+        </div>
+
+        <div class="sec-sub">维度评估</div>
+        <table>
+            <thead>
+                <tr><th>维度</th><th>评分</th><th>关键发现</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>架构设计</td>
+                    <td class="t-num">{{ARCH_SCORE}}/10</td>
+                    <td>{{ARCH_FINDING}}</td>
+                </tr>
+                <tr>
+                    <td>代码规范</td>
+                    <td class="t-num">{{STANDARD_SCORE}}/10</td>
+                    <td>{{STANDARD_FINDING}}</td>
+                </tr>
+                <tr>
+                    <td>安全性</td>
+                    <td class="t-num">{{SECURITY_SCORE}}/10</td>
+                    <td>{{SECURITY_FINDING}}</td>
+                </tr>
+                <tr>
+                    <td>性能</td>
+                    <td class="t-num">{{PERF_SCORE}}/10</td>
+                    <td>{{PERF_FINDING}}</td>
+                </tr>
+                <tr>
+                    <td>可维护性</td>
+                    <td class="t-num">{{MAINTAIN_SCORE}}/10</td>
+                    <td>{{MAINTAIN_FINDING}}</td>
+                </tr>
+                <tr>
+                    <td>技术债务</td>
+                    <td class="t-num">{{DEBT_SCORE}}/10</td>
+                    <td>{{DEBT_FINDING}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        {{CODE_BENCHMARK_SECTION}}
+
+        <div class="sec-sub">技术风险 Top 5</div>
+        <div class="block">
+            {{TECH_RISKS_HTML}}
+        </div>
+    </section>
+
+    <!-- 4. 市场与赛道 -->
+    <section id="s4">
+        <div class="sec-head">
+            <span class="sec-num">04</span>
+            <span class="sec-title">市场与赛道</span>
+        </div>
+
+        <div class="metric-row">
+            <div>
+                <div class="metric-val">{{MARKET_SIZE}}</div>
+                <div class="metric-label">市场规模 <span class="conf conf-a">A</span></div>
+            </div>
+            <div>
+                <div class="metric-val">{{MARKET_GROWTH}}</div>
+                <div class="metric-label">年增长率 <span class="conf conf-a">A</span></div>
+            </div>
+            <div>
+                <div class="metric-val">{{TRACK_STAGE}}</div>
+                <div class="metric-label">赛道阶段</div>
+            </div>
+            <div>
+                <div class="metric-val"><span class="wind {{WIND_CLASS}}"><span class="wind-arrow">{{WIND_ARROW}}</span>{{WIND_LABEL}}</span></div>
+                <div class="metric-label">趋势风向</div>
+            </div>
+        </div>
+
+        <div class="sec-sub">行业概况</div>
+        <p>{{MARKET_OVERVIEW_TEXT}}</p>
+
+        <div class="chart-box">
+            <canvas id="marketTrendChart" role="img" aria-label="市场规模与增长趋势柱状图"></canvas>
+        </div>
+
+        <div class="sec-sub">赛道拥挤度</div>
+        <div class="metric-row">
+            <div>
+                <div class="metric-val">{{TRACK_HEAT}}</div>
+                <div class="metric-label">赛道热度</div>
+            </div>
+            <div>
+                <div class="metric-val">{{TRACK_CONCENTRATION}}</div>
+                <div class="metric-label">市场集中度</div>
+            </div>
+        </div>
+        <p>{{TRACK_ANALYSIS_TEXT}}</p>
+
+        <div class="sec-sub">市场机会</div>
+        <p>{{MARKET_OPPORTUNITY_TEXT}}</p>
+    </section>
+
+    <!-- 5. 竞品与护城河 -->
+    <section id="s5">
+        <div class="sec-head">
+            <span class="sec-num">05</span>
+            <span class="sec-title">竞品与护城河</span>
+        </div>
+
+        <div class="sec-sub">竞品量化对比</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>维度</th>
+                    <th>本项目</th>
+                    <th>{{COMPETITOR_1}}</th>
+                    <th>{{COMPETITOR_2}}</th>
+                    <th>{{COMPETITOR_3}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{COMPETITOR_QUANT_ROWS}}
+            </tbody>
+        </table>
+
+        <div class="sec-sub">功能对比矩阵</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>功能维度</th>
+                    <th>本项目</th>
+                    <th>{{COMPETITOR_1}}</th>
+                    <th>{{COMPETITOR_2}}</th>
+                    <th>{{COMPETITOR_3}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{COMPETITOR_FEATURE_ROWS}}
+            </tbody>
+        </table>
+
+        <div class="chart-box">
+            <canvas id="competitorChart" role="img" aria-label="竞品功能对比柱状图：本项目与主要竞品在各功能维度的得分"></canvas>
+        </div>
+
+        <div class="sec-sub">同质化指数</div>
+        <div class="gauge">
+            <div class="gauge-label" style="text-align:right">高度<br>差异化</div>
+            <div class="gauge-track">
+                <div class="gauge-marker" style="left:{{HOMO_INDICATOR_POS}}%"></div>
+            </div>
+            <div class="gauge-label" style="text-align:left">严重<br>同质化</div>
+        </div>
+        <div style="text-align:center;margin-bottom:20px;">
+            <div class="gauge-val">{{HOMOGENIZATION_INDEX}}<span style="font-size:16px;color:var(--ink-25);">/10</span></div>
+            <div class="t-sm">{{HOMOGENIZATION_LABEL}}</div>
+        </div>
+        <table>
+            <thead>
+                <tr><th>评估维度</th><th>权重</th><th>评分</th><th>说明</th></tr>
+            </thead>
+            <tbody>
+                {{HOMO_BREAKDOWN_ROWS}}
+            </tbody>
+        </table>
+
+        <div class="sec-sub">护城河评估</div>
+        <div class="block">
+            <p class="t-sm" style="margin-bottom:16px;">■ 本项目 &nbsp;&nbsp; - - - 最强竞品 ({{MOAT_TOP_COMP}})</p>
+            {{MOAT_BARS_HTML}}
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-box">
+                <canvas id="moatRadarChart" role="img" aria-label="护���河雷达图：品牌、网络效应、数据飞轮、技术壁垒、先发优势、合规壁垒六维对比"></canvas>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;">
+                <div style="text-align:center;">
+                    <div style="font-size:48px;font-weight:900;">{{MOAT_TOTAL}}<span style="font-size:18px;color:var(--ink-25);">/60</span></div>
+                    <div class="t-sm">护城河总分</div>
+                    <div class="t-sm" style="margin-top:4px;">最强竞品: {{MOAT_COMP_TOTAL}}/60</div>
+                    <div class="t-sm" style="margin-top:8px;">{{MOAT_ASSESSMENT}}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sec-sub">SWOT</div>
+        <div class="swot-compact">
+            <div>
+                <div class="swot-label">S · 优势</div>
+                <ul>{{STRENGTHS_LIST}}</ul>
+            </div>
+            <div>
+                <div class="swot-label">W · 劣势</div>
+                <ul>{{WEAKNESSES_LIST}}</ul>
+            </div>
+            <div>
+                <div class="swot-label">O · 机会</div>
+                <ul>{{OPPORTUNITIES_LIST}}</ul>
+            </div>
+            <div>
+                <div class="swot-label">T · 威胁</div>
+                <ul>{{THREATS_LIST}}</ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. 商业价值 -->
+    <section id="s6">
+        <div class="sec-head">
+            <span class="sec-num">06</span>
+            <span class="sec-title">商业价值</span>
+        </div>
+
+        <div class="sec-sub">价值类型</div>
+        <div class="tag-row" style="margin-bottom:16px;">
+            <span class="sec-tag" style="border:1px solid #333;padding:4px 12px;font-size:13px;font-weight:700;">{{VALUE_TYPE}}</span>
+        </div>
+        <div>{{VALUE_TYPE_ASSESSMENT}}</div>
+
+        <div class="sec-sub">商业模式</div>
+        <p>{{BUSINESS_MODEL_TEXT}}</p>
+
+        <div class="sec-sub">投资价值</div>
+        <div class="cta">
+            <div class="cta-head">{{INVESTMENT_RATING}}</div>
+            <p>{{INVESTMENT_ANALYSIS_TEXT}}</p>
+        </div>
+    </section>
+
+    <!-- 7. 投资决策 -->
+    <section id="s7">
+        <div class="sec-head">
+            <span class="sec-num">07</span>
+            <span class="sec-title">投资决策</span>
+        </div>
+
+        <div class="block-dark">
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
+                <span style="font-size:36px;">{{DECISION_ICON}}</span>
+                <div>
+                    <div style="font-size:20px;font-weight:900;letter-spacing:3px;">{{DECISION_VERDICT}}</div>
+                    <div style="font-size:13px;opacity:0.6;">{{DECISION_ONELINER}}</div>
+                </div>
+            </div>
+
+            <div class="metric-row" style="background:rgba(255,255,255,0.1);">
+                <div style="background:transparent;">
+                    <div class="metric-val" style="color:var(--ink-00);">{{HOMOGENIZATION_INDEX}}/10</div>
+                    <div class="metric-label" style="color:rgba(255,255,255,0.4);">同质化指数</div>
+                </div>
+                <div style="background:transparent;">
+                    <div class="metric-val" style="color:var(--ink-00);">{{MOAT_TOTAL}}/60</div>
+                    <div class="metric-label" style="color:rgba(255,255,255,0.4);">护城河总分</div>
+                </div>
+                <div style="background:transparent;">
+                    <div class="metric-val" style="color:var(--ink-00);">{{TRACK_STAGE}}</div>
+                    <div class="metric-label" style="color:rgba(255,255,255,0.4);">赛道阶段</div>
+                </div>
+                <div style="background:transparent;">
+                    <div class="metric-val" style="color:var(--ink-00);"><span class="wind {{WIND_CLASS}}">{{WIND_LABEL}}</span></div>
+                    <div class="metric-label" style="color:rgba(255,255,255,0.4);">趋势风向</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sec-sub">决策矩阵</div>
+        <p class="t-sm" style="text-align:center;margin-bottom:12px;">纵轴 = 赛道优劣 &nbsp;·&nbsp; 横轴 = 差异化强弱 &nbsp;·&nbsp; 高亮 = 本项目位置</p>
+        <div class="matrix">
+            <div class="matrix-cell {{MATRIX_UL_ACTIVE}}">
+                <span class="axis">赛道好 + 差异弱</span>
+                谨慎迭代
+            </div>
+            <div class="matrix-cell {{MATRIX_UR_ACTIVE}}">
+                <span class="axis">赛道好 + 差异强</span>
+                强力推进
+            </div>
+            <div class="matrix-cell {{MATRIX_LL_ACTIVE}}">
+                <span class="axis">赛道差 + 差异弱</span>
+                建议放弃
+            </div>
+            <div class="matrix-cell {{MATRIX_LR_ACTIVE}}">
+                <span class="axis">赛道差 + 差异强</span>
+                小规模探索
+            </div>
+        </div>
+
+        <div class="sec-sub">综合竞争力</div>
+        <div class="chart-box">
+            <canvas id="comprehensiveRadar" role="img" aria-label="综合竞争力五维雷达图：代码质量、赛道位置、差异化程度、商业潜力、团队执行力"></canvas>
+        </div>
+
+        <div class="sec-sub">判定依据</div>
+        <div class="block">
+            {{DECISION_RATIONALE_HTML}}
+        </div>
+
+        {{DECISION_CONDITIONS_HTML}}
+
+        <div class="sec-sub">行动建议</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>行动内容</th>
+                    <th>预期收益</th>
+                    <th>实施难度</th>
+                    <th>优先级</th>
+                    <th>时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ACTION_ITEMS_ROWS}}
+            </tbody>
+        </table>
+    </section>
+
+    <!-- 8. 未来方向 -->
+    <section id="s8">
+        <div class="sec-head">
+            <span class="sec-num">08</span>
+            <span class="sec-title">未来方向</span>
+        </div>
+
+        <div class="sec-sub">产品路线图</div>
+        <div class="roadmap">
+            <div class="roadmap-item">
+                <div class="roadmap-time">短期 · 0–3 月</div>
+                <div class="roadmap-title">{{SHORT_TERM_TITLE}}</div>
+                <p>{{SHORT_TERM_DESC}}</p>
+            </div>
+            <div class="roadmap-item">
+                <div class="roadmap-time">中期 · 3–12 月</div>
+                <div class="roadmap-title">{{MID_TERM_TITLE}}</div>
+                <p>{{MID_TERM_DESC}}</p>
+            </div>
+            <div class="roadmap-item">
+                <div class="roadmap-time">长期 · 1–3 年</div>
+                <div class="roadmap-title">{{LONG_TERM_TITLE}}</div>
+                <p>{{LONG_TERM_DESC}}</p>
+            </div>
+        </div>
+
+        <div class="sec-sub">技术演进</div>
+        <div class="block">
+            {{TECH_EVOLUTION_HTML}}
+        </div>
+
+        <div class="sec-sub">风险与应对</div>
+        <table>
+            <thead>
+                <tr><th>风险类型</th><th>风险描述</th><th>影响</th><th>应对策略</th></tr>
+            </thead>
+            <tbody>
+                {{RISK_TABLE_ROWS}}
+            </tbody>
+        </table>
+    </section>
+
+    <!-- 附录: 数据溯源 -->
+    <section id="appendix">
+        <div class="appendix-head">
+            <span class="label">附录</span>
+            <span style="font-size:18px;font-weight:800;">数据溯源</span>
+        </div>
+
+        <div class="block" style="margin-bottom:24px;">
+            <p style="font-size:13px;margin-bottom:12px;">本报告数据按可信度分为三级：<span class="conf conf-a">A 级</span> 权威引用（可交叉验证的公开数据），<span class="conf conf-b">B 级</span> 行业估计（有参考价值但精确度待验证），<span class="conf conf-c">C 级</span> 模型推断（AI 推理，无外部数据支撑）。代码质量评分属 C 级，投资判定综合 A/B/C 三级数据。</p>
+            <p style="font-size:13px;">报告中引用的外部数据以 <code>[源N]</code> 编号标注，对应下表。</p>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:5%">编号</th>
+                    <th style="width:28%">论断/数据</th>
+                    <th style="width:35%">来源</th>
+                    <th style="width:14%">发布机构</th>
+                    <th style="width:10%">日期</th>
+                    <th style="width:8%">可信度</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{DATA_SOURCE_ROWS}}
+            </tbody>
+        </table>
+    </section>
+
+</div>
+
+<!-- ===== FOOTER ===== -->
+<div class="footer">
+    <p>本报告由 AI 自动生成 · {{REPORT_DATE}} · 仅供参考，不构成投资建议</p>
+</div>
+
+<!-- ===== CHARTS ===== -->
+<script>
+    // 1. 代码质量雷达图
+    new Chart(document.getElementById('radarChart').getContext('2d'), {
+        type: 'radar',
+        data: {
+            labels: ['架构设计', '代码规范', '安全性', '性能', '可维护性', '技术债务'],
+            datasets: [{
+                data: {{RADAR_DATA}},
+                backgroundColor: 'rgba(0,0,0,0.06)',
+                borderColor: '#000',
+                borderWidth: 2,
+                pointBackgroundColor: '#000',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 4, pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: true, max: 10,
+                    ticks: { stepSize: 2, font: { size: 10 }, color: '#999', backdropColor: 'transparent' },
+                    grid: { color: '#e8e8e8' },
+                    pointLabels: { font: { size: 12, weight: '600' }, color: '#333' }
+                }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // 2. 市场趋势图
+    new Chart(document.getElementById('marketTrendChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: {{MARKET_TREND_LABELS}},
+            datasets: [{
+                label: '市场规模',
+                data: {{MARKET_TREND_DATA}},
+                backgroundColor: '#000',
+                borderWidth: 0,
+                borderRadius: 0
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, grid: { color: '#f0f0f0' }, ticks: { color: '#999' } },
+                x: { grid: { display: false }, ticks: { color: '#999' } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // 3. 竞品功能对比柱状图
+    new Chart(document.getElementById('competitorChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: {{COMPETITOR_FEATURE_LABELS}},
+            datasets: [
+                { label: '本项目', data: {{SELF_FEATURE_SCORES}}, backgroundColor: '#000' },
+                { label: '{{COMPETITOR_1}}', data: {{COMP1_FEATURE_SCORES}}, backgroundColor: '#666' },
+                { label: '{{COMPETITOR_2}}', data: {{COMP2_FEATURE_SCORES}}, backgroundColor: '#aaa' },
+                { label: '{{COMPETITOR_3}}', data: {{COMP3_FEATURE_SCORES}}, backgroundColor: '#ddd' }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, max: 10, grid: { color: '#f0f0f0' }, ticks: { color: '#999' } },
+                x: { grid: { display: false }, ticks: { color: '#999' } }
+            },
+            plugins: {
+                legend: { position: 'bottom', labels: { padding: 16, font: { size: 12 }, color: '#333', usePointStyle: true, pointStyleWidth: 8 } }
+            }
+        }
+    });
+
+    // 4. 护城河雷达图
+    new Chart(document.getElementById('moatRadarChart').getContext('2d'), {
+        type: 'radar',
+        data: {
+            labels: ['品牌壁垒', '网络效应', '数据飞轮', '技术壁垒', '先发优势', '合规壁垒'],
+            datasets: [
+                {
+                    label: '本项目',
+                    data: {{MOAT_SELF_DATA}},
+                    backgroundColor: 'rgba(0,0,0,0.06)',
+                    borderColor: '#000',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#000',
+                    pointRadius: 3
+                },
+                {
+                    label: '最强竞品',
+                    data: {{MOAT_COMP_DATA}},
+                    backgroundColor: 'rgba(0,0,0,0.02)',
+                    borderColor: '#999',
+                    borderWidth: 1.5,
+                    borderDash: [4, 4],
+                    pointBackgroundColor: '#999',
+                    pointRadius: 3
+                }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: true, max: 10,
+                    ticks: { stepSize: 2, font: { size: 10 }, color: '#999', backdropColor: 'transparent' },
+                    grid: { color: '#e8e8e8' },
+                    pointLabels: { font: { size: 11, weight: '600' }, color: '#333' }
+                }
+            },
+            plugins: {
+                legend: { position: 'bottom', labels: { padding: 12, font: { size: 11 }, color: '#333', usePointStyle: true, pointStyleWidth: 6 } }
+            }
+        }
+    });
+
+    // 5. 综合竞争力雷达图
+    new Chart(document.getElementById('comprehensiveRadar').getContext('2d'), {
+        type: 'radar',
+        data: {
+            labels: ['代码质量', '赛道位置', '差异化程度', '商业潜力', '团队/执行力'],
+            datasets: [{
+                data: {{COMPREHENSIVE_RADAR_DATA}},
+                backgroundColor: 'rgba(0,0,0,0.08)',
+                borderColor: '#000',
+                borderWidth: 2.5,
+                pointBackgroundColor: '#000',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 5, pointHoverRadius: 7
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: true, max: 10,
+                    ticks: { stepSize: 2, font: { size: 10 }, color: '#999', backdropColor: 'transparent' },
+                    grid: { color: '#e8e8e8' },
+                    pointLabels: { font: { size: 12, weight: '600' }, color: '#333' }
+                }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+</script>
+
+</body>
+</html>
