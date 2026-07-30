@@ -1,6 +1,6 @@
 # Code Business Analyzer
 
-[![skills.sh](https://skills.sh/b/paul/Code-Business-Analyzer)](https://skills.sh/paul/Code-Business-Analyzer)
+[![skills.sh](https://skills.sh/b/noconfuse/Code-Business-Analyzer)](https://skills.sh/noconfuse/Code-Business-Analyzer)
 
 ## 你的代码是资产，还是负债？
 
