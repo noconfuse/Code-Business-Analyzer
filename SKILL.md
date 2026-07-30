@@ -1,7 +1,11 @@
 ---
 name: code-business-analyzer
-description: "代码商业分析报告生成器。对用户提供的代码项目进行深度分析，从代码质量、赛道竞争力、竞品分析、商业价值、投资决策、未来方向等维度生成一份完整的 HTML 商业分析报告。核心回答"该代码项目是否值得继续重点迭代"。黑白硬朗设计风格，8+1 精简章节结构，含数据溯源与投资决策框架。当用户要求分析代码的商业价值、生成代码项目商业报告、评估项目投资价值、或要求从商业角度评审代码时，使用此 Skill。"
-agent_created: true
+description: "Use when analyzing the commercial value of a code project and generating an HTML business analysis report. Evaluates six dimensions — code quality, market & category, competitors & moat, business model, investment verdict, future roadmap — and answers the core question: should this project be kept as a focus area? Anchors every dimension to a validated framework (ISO/IEC 25010, Porter Five Forces, Blue Ocean, TAM/SAM/SOM, Jobs-to-be-Done, Business Model Canvas, Crossing the Chasm, Christensen disruption theory, Lean Startup, BCG Matrix). Includes a Devil's Advocate step and Kill Criteria that force a downgrade on GO verdicts. Outputs a single self-contained HTML report (8 chapters + appendix, black-and-white hard-edged design) with source-traceable data tagged by confidence level. Triggers on: 'analyze the business value of this code project', 'is this project worth continuing', 'evaluate the investment value of my code', 'generate a business report for this repo', 'review my project from a commercial angle'."
+metadata:
+  author: baolei
+  version: 1.0.0
+  license: MIT
+  tags: business-analysis, code-review, investment-analysis, html-report
 ---
 
 # Code Business Analyzer — 代码商业分析报告生成器

@@ -1,5 +1,7 @@
 # Code Business Analyzer
 
+[![skills.sh](https://skills.sh/b/paul/Code-Business-Analyzer)](https://skills.sh/paul/Code-Business-Analyzer)
+
 ## 你的代码是资产，还是负债？
 
 每个开发者都经历过这个时刻：你写了一个项目，投入了数百小时，技术栈很新，代码很干净，README 写得很认真。然后呢？
