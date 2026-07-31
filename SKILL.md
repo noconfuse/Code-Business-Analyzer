@@ -3,7 +3,7 @@ name: code-business-analyzer
 description: "Use when analyzing the commercial value of a code project and generating an HTML business analysis report. Evaluates six dimensions — code quality, market & category, competitors & moat, business model, investment verdict, future roadmap — and answers the core question: should this project be kept as a focus area? Anchors every dimension to a validated framework (ISO/IEC 25010, Porter Five Forces, Blue Ocean, TAM/SAM/SOM, Jobs-to-be-Done, Business Model Canvas, Crossing the Chasm, Christensen disruption theory, Lean Startup, BCG Matrix). Includes a Devil's Advocate step and Kill Criteria that force a downgrade on GO verdicts. Outputs a single self-contained HTML report (8 chapters + appendix, black-and-white hard-edged design) with source-traceable data tagged by confidence level. Triggers on: 'analyze the business value of this code project', 'is this project worth continuing', 'evaluate the investment value of my code', 'generate a business report for this repo', 'review my project from a commercial angle'."
 metadata:
   author: baolei
-  version: 1.0.0
+  version: 1.1.0
   license: MIT
   tags: business-analysis, code-review, investment-analysis, html-report
 ---
@@ -44,6 +44,32 @@ metadata:
 - 用户提供代码项目路径
 - 需要 WebSearch / WebFetch 联网获取市场和竞品数据
 - 需要 GitHub 公开数据（用于竞品对比）
+
+
+
+## Data Verification Rules (数据验证强制规则)
+
+报告中所有外部数据必须经过实际验证，禁止凭记忆或推测填写。
+
+### 必须搜索验证的数据
+| 数据类型 | 验证方式 | 未验证时处理 |
+|----------|---------|-------------|
+| 竞品 GitHub Stars / Forks | 搜索 `site:github.com {repo}` 或 API 查询 | 标注 `"未验证 [C 级]"`，不得呈现为事实 |
+| 竞品融资金额 | 搜索 `"{竞品名}" funding round` | 标注 `"N/A · 未查到公开融资数据"` |
+| 市场规模 (TAM/SAM/SOM) | 搜索权威报告（Gartner/IDC/Grand View Research） | 标注 `"N/A · 该赛道公开数据稀缺 [C 级]"`，禁止编造数字 |
+| 赛道 CAGR | 同上 | 同上 |
+| 竞品功能特性 | 访问竞品官网或 GitHub README | 标注 `"基于公开信息推断 [C 级]"` |
+
+### 搜索失败降级
+- 连续 3 次搜索无有效结果 → 对应章节降级为"数据暂缺"精简版
+- 降级时在章节开头显式说明：`"注：本章市场数据因搜索限制未能获取，以下为基于代码分析的定性判断"`
+- **绝对禁止**：在搜索失败后编造看似合理的数字（如 "$17.5B"），即使加了置信度标签也容易误导读者
+
+### 置信度标签使用规范
+- **[高]**：仅用于直接来自代码库的一手数据（代码行数、文件数量、提交历史）或已验证的公开数据（附源链接）
+- **[中]**：基于已验证数据的合理推断（如从 SAM 推算 SOM）
+- **[低]**：基于有限信息的估算，必须同时标注 `"需进一步验证"`
+- **禁止**：将编造数据标注为 [中] 或 [高]
 
 ## Methodology Anchoring
 
@@ -419,9 +445,9 @@ metadata:
 
 ## Report Quality Guidelines
 
+### 核心规则
 - **方法论锚定**：每个维度套用对应方法论，不得自由心证
 - **Kill Criteria 强制**：命中否决条件自动降档，标注触发规则编号
-- **魔鬼代言人**：判定前先写反方论点，无法反驳时不得高于"谨慎"
 - **置信度标注**：每个评分附 [高]/[中]/[低]
 - **数据溯源强制**：所有外部数据标注 [源N]
 - **决策导向**：报告必须回答"该不该继续迭代"
@@ -429,7 +455,74 @@ metadata:
 - **反和稀泥**：禁止"前景广阔""值得期待""有一定优势"等无信息量表述
 - **中文输出**：简体中文
 
+### 反冗余规则
+- **每个结论只出现一次**：判定结果（GO/谨慎/NO-GO）在封面展示一次，第 7 章决策卡展示一次，共 2 处。禁止在执行摘要、CTA 框等位置重复展示
+- **评分不重复**：同质化指数、护城河总分等量化指标，仅在首次出现的章节给出完整展示，后续章节引用时用文字说明（如"同质化指数 7.0（见第 5 章）"），不重复放置数字卡片
+- **SWOT 与执行摘要不重叠**：执行摘要列出 5 条核心发现，SWOT 列出 4 维要点，两者内容必须有差异——执行摘要聚焦"对决策最重要的发现"，SWOT 聚焦"结构性优劣势"
+- **图表与文字不重复**：如果某个维度已在图表中完整呈现，正文不再用表格重复相同数据，改为引用图表并补充解读
+
+### 代码锚定要求
+- **评分必须附代码位置**：每个代码质量维度的评分，必须引用至少 1 个具体文件路径或函数名作为证据。格式：`"架构设计 7/10 — 如 src/contexts/dataset/domain/capabilities.py 的能力表设计体现了 DDD 思想"`
+- **禁止空泛评价**：不得出现"代码质量良好""架构设计合理"等无代码支撑的结论
+- **引用深度**：至少深入到函数/类级别，不得只引用目录名
+
+### 魔鬼代言人质量要求
+- **反方论点必须有量化支撑**：3 条"为什么应该毙掉"的论点，每条必须附带具体数据或事实
+- **正方反驳必须有证据**：3 条"为什么值得继续"的论点，每条必须有可验证的依据
+- **禁止自我否定**：反驳时不得出现"但这个论点没有证据""无法反驳"等自我削弱的表述。如果确实无法反驳，直接在判定中体现（降低评级），不在正文中自认失败
+- **判定必须回应反方**：最终判定必须明确说明"尽管存在 [反方论点]，但因为 [正方因素]，判定为 X"
+
+### 行动建议质量要求
+- **必须项目具体**：每条行动建议必须关联到项目的具体代码结构或功能模块。禁止"补测试""建社区"等适用于任何项目的泛泛建议
+- **格式**："[具体模块/功能] → [具体行动] → [预期效果]"。例如："src/ 目录无测试文件 → 为 dataset/ 和 training/ 上下文补充单元测试 → 降低重构风险，提升贡献者信心"
+- **Impact/Effort 标注**：每个行动项标注影响（1-5）和难度（1-5），按矩阵分类：
+  - 影响 >= 4 且 难度 <= 2：立即执行
+  - 影响 >= 4 且 难度 >= 3：计划排期
+  - 影响 <= 3 且 难度 <= 2：有余力时做
+  - 影响 <= 3 且 难度 >= 3：暂不做
+
+### 未来方向质量要求
+- **短期任务必须可验收**：每项关联可验证里程碑（如"Docker 镜像发布""CI 覆盖率 > 70%"），禁止"优化性能""加强文档"等无法验收的表述
+- **风险矩阵必填**：至少覆盖技术风险、市场风险、竞争风险，每项标注概率、影响和缓解策略
+
 ---
+
+
+
+## Project Positioning Logic (项目定位自适应)
+
+报告的评估框架必须根据项目定位自动调整，禁止用单一的"商业项目"标准评判所有项目。
+
+### 定位判定
+在 Phase 1 完成后，根据以下信号判定项目定位：
+
+| 定位 | 判定信号（满足 2 条以上） |
+|------|--------------------------|
+| **商业项目** | 有付费功能/订阅/许可证限制；有明确的客户细分描述；README 有 pricing 页；有商业实体背书 |
+| **开源社区项目** | MIT/Apache 等宽松协议；有 CONTRIBUTING.md；有 > 10 Contributors；README 面向开发者 |
+| **个人/团队工具** | 单人或 < 3 人开发；README 声明"个人使用"或"单机场景"；无商业化信号；Stars < 50 |
+| **实验/学习项目** | 首次提交 < 3 月；代码量 < 5K 行；无文档；commit message 不规范 |
+
+### 定位感知的评估调整
+
+#### 个人/团队工具项目
+- **核心问题变更为**："作为工具好不好用" + "有没有商业化潜力"，两条线分开评估
+- **代码质量权重提升至 30%**（工具的核心价值在于好用）
+- **商业潜力权重降至 10%**（商业化不是主要目标）
+- **团队/执行力权重提升至 15%**（单人项目可持续性是关键风险）
+- **判定框架**：工具价值单独评分（1-10），商业潜力单独评分（1-10），最终判定基于两者综合
+- **Kill Criteria 调整**：K1（同质化）和 K3（无商业化验证）对工具型项目不触发自动降档，改为"商业化风险提示"而非"投资否决"
+- **行动建议优先级**：工具型项目优先建议"提升工具质量"而非"探索商业化"
+
+#### 开源社区项目
+- **社区健康度权重提升至 15%**（Contributors 多样性、Issue 响应速度、Release 频率）
+- **商业模式分析简化**：如无明确商业化路径，标注"社区驱动型项目，商业化非当前目标"
+- **护城河评估侧重社区壁垒**而非商业壁垒
+
+#### 商业项目
+- **维持默认权重**
+- **Kill Criteria 完整适用**
+- **必须评估 PMF 验证状态**
 
 ## Scoring System
 
